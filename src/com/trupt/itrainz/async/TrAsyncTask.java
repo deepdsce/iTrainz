@@ -2,25 +2,24 @@ package com.trupt.itrainz.async;
 
 import android.os.AsyncTask;
 
-import com.trupt.itrainz.model.Request;
-import com.trupt.itrainz.model.Result;
+import com.trupt.itrainz.common.Error;
+import com.trupt.itrainz.model.request.Request;
 
-public class TrAsyncTask<IN extends Request, OUT extends Result> extends AsyncTask<IN, Void, OUT> {
+public abstract class TrAsyncTask<IN extends Request, Result> extends AsyncTask<IN, Void, Result> {
 
-	protected AsyncTaskCompletionListener<OUT> listener;
+	protected AsyncTaskCompletionListener<Result> listener;
 	
-	public void setListener(AsyncTaskCompletionListener<OUT> listener) {
+	public void setListener(AsyncTaskCompletionListener<Result> listener) {
 		this.listener = listener;
 	}
 	
 	@Override
-	protected OUT doInBackground(IN... params) {
+	protected Result doInBackground(IN... params) {
 		return null;
 	}
-
 	
-	private interface AsyncTaskCompletionListener<OUT extends Result> {
-		void onSuccess(OUT result);
-		void onError();
+	public interface AsyncTaskCompletionListener<Result> {
+		void onSuccess(Result result);
+		void onFailure(Error error);
 	}
 }

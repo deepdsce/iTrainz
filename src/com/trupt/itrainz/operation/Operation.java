@@ -1,25 +1,29 @@
 package com.trupt.itrainz.operation;
 
+import com.trupt.itrainz.async.TrAsyncTask.AsyncTaskCompletionListener;
 import com.trupt.itrainz.common.Error;
-import com.trupt.itrainz.model.Result;
+import com.trupt.itrainz.model.request.Request;
+import com.trupt.itrainz.model.result.Result;
 
-public abstract class Operation {
+public abstract class Operation implements AsyncTaskCompletionListener<Result> {
 
-	protected OperationStatusListener opStatusListener;
+	protected OperationStatusListener operationStatusListener;
+	protected Request request;
 	
 	public abstract void startOperation();
 	public abstract void stopOperation();
 	public abstract void cancelOperation();
 	
+	public Operation(Request request, OperationStatusListener opStatusListener) {
+		this.operationStatusListener = opStatusListener;
+		this.request = request;
+	}
+	
 	public OperationTypeEnum getOperationEnum() {
 		return OperationTypeEnum.OP;
 	}
 	
-	public void setOpStatusListener(OperationStatusListener opStatusListener) {
-		this.opStatusListener = opStatusListener;
-	}
-	
-	
+
 	
 	public interface OperationStatusListener {
 		void onSuccess(Result result);

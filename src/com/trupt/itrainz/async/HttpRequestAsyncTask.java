@@ -1,29 +1,44 @@
 package com.trupt.itrainz.async;
 
-import java.net.URL;
-import java.util.LinkedHashMap;
+import com.google.gson.Gson;
+import com.trupt.itrainz.model.request.HttpRequest;
+import com.trupt.itrainz.model.request.Request;
+import com.trupt.itrainz.model.result.PnrStatus;
 
-import com.trupt.itrainz.model.Request;
-import com.trupt.itrainz.model.Result;
+public class HttpRequestAsyncTask<IN extends Request, Result> extends TrAsyncTask<IN, Result> {
 
-public class HttpRequestAsyncTask<IN extends Request, OUT extends Result> extends TrAsyncTask<IN, OUT> {
-
-	protected URL url;
-	protected LinkedHashMap<String, String> mapParameters;
-	protected LinkedHashMap<String, String> mapCookie;
+	protected HttpRequest request;
 	
-	public HttpRequestAsyncTask(URL url,
-			LinkedHashMap<String, String> mapParameters,
-			LinkedHashMap<String, String> mapCookie) {
-		super();
-		this.url = url;
-		this.mapParameters = mapParameters;
-		this.mapCookie = mapCookie;
-	}
-
 	@Override
-	protected OUT doInBackground(IN... params) {
-		// TODO Auto-generated method stub
-		return super.doInBackground(params);
+	protected Result doInBackground(IN... params) {
+		Result result = null;
+		try {
+			String response = this.getResponse(params[0]);
+			String jsonResponse = this.getJsonResponse(response);
+			Class<? extends Result> clazz = this.getResultClass();
+			Gson gson = new Gson();
+			result = gson.fromJson(jsonResponse, clazz);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return result;
+	}
+	
+	protected String getResponse(Request req) throws Exception {
+		return null;
+	}
+	
+	protected String getJsonResponse(String resp) {
+		return resp;
+	}
+	
+	protected Class getResultClass() {
+		Class clazz = null;
+		switch (request.getRequestType()) {
+		case PNR_STATUS:
+			clazz = PnrStatus.class;
+			break;
+		}
+		return clazz;
 	}
 }
