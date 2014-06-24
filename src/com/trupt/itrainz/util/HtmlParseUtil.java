@@ -7,21 +7,46 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import com.trupt.itrainz.common.Error;
 import com.trupt.itrainz.model.result.PnrStatus;
 import com.trupt.itrainz.model.result.SeatStatus;
 
 public class HtmlParseUtil {
 	
 	public static PnrStatus parsePNRData(Document document, String pnr) {
-		ArrayList<ArrayList<String>> pnrJourneyDetailTableData = parsePnrInfoData(document);
-		ArrayList<ArrayList<String>> pnrStatusTableData = parsePNRStatusTable(document);	
-		PnrStatus pnrStatus = getPnrInfo(pnr, pnrJourneyDetailTableData, pnrStatusTableData);
+		PnrStatus pnrStatus = new PnrStatus();
+		pnrStatus.setPnrNumber(pnr);
+		String errMsg = checkForErrors(document);
+		if(errMsg == null) {
+			ArrayList<ArrayList<String>> pnrJourneyDetailTableData = parsePnrInfoData(document);
+			ArrayList<ArrayList<String>> pnrStatusTableData = parsePNRStatusTable(document);
+			if(pnrJourneyDetailTableData != null && pnrStatusTableData != null && !pnrJourneyDetailTableData.isEmpty() && !pnrStatusTableData.isEmpty()) {
+				updatePnrStatus(pnrStatus, pnrJourneyDetailTableData, pnrStatusTableData);
+			} else {
+				pnrStatus.setErrorMessage(Error.ErrorCodeEnum.FACILITY_NOT_AVAILABLE.toString());
+			}
+		} else {
+			pnrStatus.setErrorMessage(errMsg);
+		}
 		return pnrStatus;
 	}
 	
-	private static PnrStatus getPnrInfo(String pnr, ArrayList<ArrayList<String>> pnrJourneyDetailTableData, ArrayList<ArrayList<String>> pnrStatusTableData) {
-		PnrStatus pnrStatus = new PnrStatus();
-		pnrStatus.setPnrNumber(pnr);
+	private static String checkForErrors(Document document) {
+		String errorMsg = null;
+		Elements tableElements = document
+				.body()
+				.select("table:not(:has(table)):contains(Following ERROR was encountered in your Query Processing)");
+		if(tableElements.size() > 0) {
+			Elements errElements = document
+					.body()
+					.select("H2");
+			Element element = errElements.first();
+			errorMsg = element.text();
+		}
+		return errorMsg;
+	}
+	
+	private static void updatePnrStatus(PnrStatus pnrStatus, ArrayList<ArrayList<String>> pnrJourneyDetailTableData, ArrayList<ArrayList<String>> pnrStatusTableData) {
 		//retrieve data from pnrJourneyDetailTableData
 		ArrayList<String> data = pnrJourneyDetailTableData.get(2);
 		pnrStatus.setTrainNumber(data.remove(0).replaceFirst("[\\*]", ""));
@@ -49,7 +74,6 @@ public class HtmlParseUtil {
 	    	listSeatStatus.add(seatStatus);
 	    }
 	    pnrStatus.setSeatStatus(listSeatStatus);
-		return pnrStatus;
 	}
 	
 	private static ArrayList<ArrayList<String>> parsePNRStatusTable(Document document) {

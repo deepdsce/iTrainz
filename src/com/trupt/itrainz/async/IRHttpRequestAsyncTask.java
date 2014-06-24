@@ -12,6 +12,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
 import com.google.gson.Gson;
+import com.trupt.itrainz.common.Error;
 import com.trupt.itrainz.model.request.HttpRequest;
 import com.trupt.itrainz.model.request.PnrRequest;
 import com.trupt.itrainz.model.request.Request;
@@ -23,6 +24,9 @@ public class IRHttpRequestAsyncTask<IN extends Request, Result> extends HttpRequ
 	@Override
 	protected Result doInBackground(IN... params) {
 		Result result = super.doInBackground(params);
+		if(result == null) {
+			error = new Error(Error.ErrorCodeEnum.FACILITY_NOT_AVAILABLE);
+		}
 		return result;
 	}
 	

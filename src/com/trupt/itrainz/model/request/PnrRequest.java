@@ -27,7 +27,7 @@ public class PnrRequest extends HttpRequest {
 	private void createPnrRequest() {
 		//TODO: getValueFromSharedPreference and create request accordingly
 		try {
-			URL url = new URL("http://www.indianrail.gov.in/cgi_bin/inet_pnstat_cgi_17619.cgi");
+			URL url = new URL("http://www.indianrail.gov.in/cgi_bin/inet_pnstat_cgi_10521.cgi");
 			Map<String, String> params = new LinkedHashMap<>();
 			params.put("lccp_pnrno1", this.pnrNumber);
 			Random random = new Random();

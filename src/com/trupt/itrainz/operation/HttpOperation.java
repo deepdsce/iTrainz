@@ -1,6 +1,7 @@
 package com.trupt.itrainz.operation;
 
 import com.trupt.itrainz.async.HttpRequestAsyncTask;
+import com.trupt.itrainz.async.IRHttpRequestAsyncTask;
 import com.trupt.itrainz.common.Error;
 import com.trupt.itrainz.model.request.Request;
 import com.trupt.itrainz.model.result.Result;
@@ -41,7 +42,13 @@ public class HttpOperation extends Operation {
 	}
 	
 	private void startRequest() {
-		HttpRequestAsyncTask<Request, Result> httpRequestAsyncTask = new HttpRequestAsyncTask<Request, Result>();
+		HttpRequestAsyncTask<Request, Result> httpRequestAsyncTask = null;
+		switch (this.request.getRequestType()) {
+		case PNR_STATUS:
+			httpRequestAsyncTask = new IRHttpRequestAsyncTask<>();
+			break;
+		}
+		httpRequestAsyncTask.setListener(this);
 		httpRequestAsyncTask.execute(this.request);
 	}
 
